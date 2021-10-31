@@ -1,15 +1,16 @@
 // import stationList from "../../../data/stations";
-export default function MetroHome({ stationId, stationData }) {
+export default function MetroHome(props) {
   // TODO: display station info
-  //   const router = useRouter();
-  //   const stationId = router.query.stationId;
 
   return (
     <>
-      <p>捷運站代號：{stationId}</p>
-      <p>站名：{stationData["站名"]}</p>
-      <p>車站地址：{stationData["車站地址"]}</p>
-      <p>網址：{stationData["資訊網址"]}</p>
+      {Object.entries(props.station).map((key, value) => {
+        return (
+          <p key={key}>
+            {key[0]}: {key[1]}
+          </p>
+        );
+      })}
     </>
   );
 }
@@ -21,22 +22,17 @@ export const getServerSideProps = async ({ req, res, params }) => {
   // Hint: see /metro/ssr/index.js for implementation details
   //       remember to use `params` to receive station
   const stations = await fetch(url).then((res) => res.json());
-  const stationId = params["stationId"];
-  let stationIdx = 0;
+  const stationObj = {};
 
-  for (const [index, eachStation] of stations.entries()) {
-    if (stationId === eachStation["捷運站代號"]) {
-      stationIdx = index;
-      break;
-    }
-  }
-
-  const stationData = stations[stationIdx];
+  stations.forEach((station) => {
+    stationObj[station["捷運站代號"]] = station;
+  });
+  // console.log(stationObj);
+  // console.log({ params });
 
   return {
     props: {
-      stationId,
-      stationData,
+      station: stationObj[params.stationId],
     },
   };
 };
